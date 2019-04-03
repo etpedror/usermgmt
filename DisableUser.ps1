@@ -1,4 +1,18 @@
-﻿$userToDelete = "<user2delete>"; # The name of the user to disable
+﻿# DISCLAIMER
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES 
+# OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+#
+# IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR 
+# ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+# CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+
+
+
+$userToDelete = "<user2delete>"; # The name of the user to disable
 $disableInAD = $false; # Set to true to disable user in AD (user is not deleted, just disabled)
 $subscriptionName = "<Subscription Name>"; # Leave Empty to go over all the subscriptions
 $usersToReset = "<user2reset1>", "<user2reset2>", "<user2reset3>"; # Comma-separated list of users to reset passwords for
