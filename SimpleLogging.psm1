@@ -66,8 +66,7 @@ function Get-Logging{
     if($IncludeDate){
         $now = "_" + (Get-Date).ToString("yyyyMMdd");
     }
-    $CurrentLogFilePath = "$($BasePath)$($LogPath)$($LogFilename)$($now).log"
-    $IsLogInitialized = $true;
+    $CurrentLogFilePath = "$($BasePath)$($LogPath)$($LogFilename)$($now).log";
     return $CurrentLogFilePath;
 }
 
@@ -98,7 +97,7 @@ function Write-Log{
     )
     if(($DefaultLevel -ne 6) -and ($MessageLevel -ge $DefaultLogLevel))
     {
-        if(-Not $IsLogInitialized){
+        if(-Not $CurrentLogFilePath){
             Get-Logging;
         }
         $logMessage = "";
@@ -111,7 +110,6 @@ function Write-Log{
 }
 
 [string] $CurrentLogFilePath = '';
-[boolean] $Private:IsLogInitialized = $false;
 [LogLevel] $DefaultLogLevel = 2;
 [boolean] $IncludeTimeInLog = $true;
 
