@@ -10,7 +10,8 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 Import-Module '.\SimpleLogging.psm1';
-Import-Module '.\SimplePasswordUtils.psm1'
+Import-Module '.\SimplePasswordUtils.psm1';
+Import-Module '.\SimpleAzureUtils.psm1';
 
 
 $userToDelete = "<user2delete>"; # The name of the user to disable
@@ -69,19 +70,13 @@ function Reset-UserPasswords{
     Write-Host "RESETTING PASSWORD(S)" -ForegroundColor Cyan;
     write-Host "";
 
-    $keyVault = Get-AzureRMKeyVault -VaultName $KeyVaultName;
-    if((-Not $keyVault) -and ($KeyVaultName -and $Location)){
-        $resourceGroup = Get-AzureRmResourceGroup -Name $ResourceGroupName;
-        if(-Not $resourceGroup){
-            $resourceGroup = New-AzureRmResourceGroup -Name $ResourceGroupName -Location $Location;
-        }
-        $keyVault = New-AzureRmKeyVault -Name $KeyVaultName -ResourceGroupName $ResourceGroupName -Location $Location;
-    }
+    $keyVault = Get-KeyVault -Name $KeyVaultName -ResourceGroupName $ResourceGroupName -Location $Location;
     if(-Not $keyVault){
         Log -message "KeyVault not found and couldn't be created";
         Write-Error "KeyVault not found and couldn't be created";
         return;
     }
+
     foreach($username in $Usernames){
         $user = Get-AzureADUser -SearchString $username;
         if(!$user)
@@ -195,28 +190,6 @@ function Disable-User{
     Write-Host "DONE DISABLING USER!" -ForegroundColor Green;
 }
 
-function Get-ConnectionToAzure{
-    param(
-        [Parameter(HelpMessage ='The base path for the script')] [string] $BasePath = "C:\Code\Powershell\Azure", 
-        [Parameter(HelpMessage ='The path for the credential file')] [string] $credentialPath = "\Credentials",
-        [Parameter(HelpMessage ='The filename of the credential file')] [string] $credentialFilename = "\creds.xml"
-    )
-    $credFolderExists = Test-Path "$($BasePath)$($credentialPath)" -PathType Container;
-    if(-Not $credFolderExists) {
-        New-Item -ItemType Directory -Force -Path "$($BasePath)$($credentialPath)";
-    }
-
-    $credentialFile = "$($BasePath)$($credentialPath)$($credentialFilename)";
-    $credFileExists = Test-Path $credentialFile -PathType Leaf;
-    if(-Not $credFileExists) {
-        $credential = Get-Credential;
-        $credential | Export-CliXml -Path $credentialFile;
-    }
-
-    $AzureAdCred = Import-CliXml -Path $credentialFile;
-    Connect-AzureAD -Credential $AzureAdCred | Out-Null;
-    Connect-AzureRmAccount -Credential $AzureAdCred | Out-Null;
-}
 
 function Disable-ADUser{
     param (
@@ -240,7 +213,7 @@ function Disable-ADUser{
 
 clear;
 Get-Logging -BasePath $BasePath -LogPath $LogPath -LogFilename $LogFilename | Out-Null
-Get-ConnectionToAzure -basePath $BasePath -credentialPath $credentialPath -credentialFilename $credentialFileName;
+Get-ConnectiontoAzure -BasePath $BasePath -UserFilePath $credentialPath -UserFileName $credentialFileName;
 #Disable-User -usernameToDelete $userToDelete
 Reset-UserPasswords -usernames $usersToReset -keyVaultName $KeyVaultName -resourceGroupName $keyVaultRG -location $keyVaultRegion -passwordFieldNamePrefix $passwordSecretPrefix
 
