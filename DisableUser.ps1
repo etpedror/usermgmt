@@ -9,13 +9,14 @@
 # CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-
+Import-Module '.\SimpleLogging.psm1';
+Import-Module '.\SimplePasswordUtils.psm1'
 
 
 $userToDelete = "<user2delete>"; # The name of the user to disable
 $disableInAD = $false; # Set to true to disable user in AD (user is not deleted, just disabled)
 $subscriptionName = "<Subscription Name>"; # Leave Empty to go over all the subscriptions
-$usersToReset = "<user2reset1>", "<user2reset2>", "<user2reset3>"; # Comma-separated list of users to reset passwords for
+$usersToReset = {"<user2reset1>", "<user2reset2>", "<user2reset3>"}; # Comma-separated list of users to reset passwords for
 $KeyVaultName = "passes4all"; # Name of the KeyVault to Store the passwords in
 $keyVaultRegion = "North Europe"; # Region where the keyvault should be created if non existent
 $keyVaultRG = "TestResource"; # Resource group in which the keyvault should be created if non existent
@@ -25,17 +26,6 @@ $credentialPath = "\Credentials"; # The subfolder where the credentials file is 
 $credentialFileName = "\creds.xml"; # the name of the file where to store the credentials
 $LogPath = "\logs"; # The subfolder where the logs are to be written
 $LogFilename = "\DisableUser_Log_"; # Prefix to preppend to the date to get the log file name
-$logLevel = 4 # The current log level
-
-enum LogLevel {
-    Trace = 0
-    Debug = 1
-    Information = 2
-    Warning = 3
-    Error = 4
-    Critical = 5
-    None = 6
-}
 
 function Reset-UserPasswords{
     <#
@@ -57,15 +47,22 @@ function Reset-UserPasswords{
             Reset-UserPasswords -Usernames "matt.jones","peter.bone" -KeyVaultName "supersecretstore" -ResourceGroupName "myresourcegroup" -Location "North Europe" -UserPwdPrefix "pass4"
     #>
     param (
+        [Parameter(HelpMessage = "The array of usernames to receive new passwords")]
         [Parameter(Mandatory = $True)]
+        [ValidateNotNullOrEmpty]
         [array] $Usernames,
+        [Parameter(HelpMessage = "The name of the KeyVault where the rotated user passwords will be stored")]
         [Parameter(Mandatory = $True)]
+        [ValidateNotNull]
         [string] $KeyVaultName,
+        [Parameter(HelpMessage = "The name of the resource group where to create the KeyVault if non existing")]
         [Parameter(Mandatory = $True)]
         [string] $ResourceGroupName,
-        [Parameter(Mandatory = $True)]
+        [Parameter(HelpMessage = "The location where to create the Key Vault if non existing")]
+        [Parameter(Mandatory = $False)]
         [string] $Location,
-        [Parameter(Mandatory = $True)]
+        [Parameter(HelpMessage = "The prefix to append to the user name when saving the password")]
+        [Parameter(Mandatory = $False)]
         [string] $UserPwdPrefix
     )
     write-Host "";
@@ -73,7 +70,7 @@ function Reset-UserPasswords{
     write-Host "";
 
     $keyVault = Get-AzureRMKeyVault -VaultName $KeyVaultName;
-    if(-Not $keyVault){
+    if((-Not $keyVault) -and ($KeyVaultName -and $Location)){
         $resourceGroup = Get-AzureRmResourceGroup -Name $ResourceGroupName;
         if(-Not $resourceGroup){
             $resourceGroup = New-AzureRmResourceGroup -Name $ResourceGroupName -Location $Location;
@@ -198,87 +195,11 @@ function Disable-User{
     Write-Host "DONE DISABLING USER!" -ForegroundColor Green;
 }
 
-function Get-Logging{
-    <#
-        .SYNOPSIS
-            Gets the path where to write the logs to.
-        .DESCRIPTION
-            Gets the path where to write the logs to, creating the folder structure if this doesn't exist.
-        .PARAMETER BasePath
-            The base path where the script is running from.
-        .PARAMETER LogPath
-            The folder structure under BasePath where the logs are meant to be written to.
-        .PARAMETER LogFilename
-            The filename of the log file, without extension (this will always be "log").
-        .EXAMPLE
-            Get-Logging -BasePath "C:\Code\Powershell\Azure" -LogPath "\logs" -LogFilename "\log"
-    #>
-    param (
-        [PS]
-        [string] $BasePath = "C:\Code\Powershell\Azure",
-        [string] $LogPath = "\logs",
-        [string] $LogFilename = "\log"
-    )
-    $logFolderExists = Test-Path "$($BasePath)$($LogPath)" -PathType Container;
-    if(-Not $logFolderExists) {
-        New-Item -ItemType Directory -Force -Path "$($BasePath)$($LogPath)";
-    }
-    $now = (Get-Date).ToString("yyyyMMdd");
-    return "$($BasePath)$($LogPath)$($LogFilename)_$($now).log";
-}
-
-function Log{
-    <#
-        .SYNOPSIS
-            Writes a message to the log file.
-        .DESCRIPTION
-            Writes a message to the log file, creating it if non existing.
-        .PARAMETER File
-            The full path to the log file.
-        .PARAMETER Message
-            The message to log.
-        .PARAMETER MessageLevel
-            The log level of the message.
-        .PARAMETER IncludeTime
-            Whether to include time at the start of the message. It's set to true by default.
-        .PARAMETER DefaultLevel
-            The minimum level to log.
-        .EXAMPLE
-            Log -File "C:\log\file.log" -Message "Something happened" -MessageLevel 4 -IncludeTime $true -DefaultLevel 2
-            Log -File "C:\log\file.log" -Message "Something happened"
-            Log -File "C:\log\file.log" -Message "Something happened" -MessageLevel 6 
-    #>
-    param (
-        [PSDefaultValue(Help = 'The full path to the log file')]
-        [string] $File,
-        [PSDefaultValue(Help = 'The message to log')]
-        [string] $Message,
-        [PSDefaultValue(Help = 'The log level of the message')]
-        [LogLevel] $MessageLevel = 2,
-        [PSDefaultValue(Help = 'Whether to include time at the start of the message')]
-        [boolean] $IncludeTime = $true,
-        [PSDefaultValue(Help = 'The minimum level to log')]
-        [LogLevel] $DefaultLevel = 2
-    )
-    if(($MessageLevel -ge $DefaultLevel) -or (($DefaultLevel -eq 6) -or ($MessageLevel = 0)))
-    {
-        if(-Not $File){
-            $File = Get-Logging;
-        }
-        $logMessage = "";
-        if($IncludeTime){
-            $logMessage = (Get-Date).ToString("HH:mm:ss - ");
-        }
-        $logMessage = "$($logMessage)$($Message)";
-        Out-File -Append -FilePath $file -InputObject $logMessage;
-    }
-}
-
 function Get-ConnectionToAzure{
     param(
-        [PSDefaultValue(Help = 'The base path for the script')] [string] $BasePath = "C:\Code\Powershell\Azure", 
-        [PSDefaultValue(Help = 'The path for the credential file')] [string] $credentialPath = "\Credentials",
-        [PSDefaultValue(Help = 'The filename of the credential file')] [string] $credentialFilename = "\creds.xml"
+        [Parameter(HelpMessage ='The base path for the script')] [string] $BasePath = "C:\Code\Powershell\Azure", 
+        [Parameter(HelpMessage ='The path for the credential file')] [string] $credentialPath = "\Credentials",
+        [Parameter(HelpMessage ='The filename of the credential file')] [string] $credentialFilename = "\creds.xml"
     )
     $credFolderExists = Test-Path "$($BasePath)$($credentialPath)" -PathType Container;
     if(-Not $credFolderExists) {
@@ -316,55 +237,9 @@ function Disable-ADUser{
     Write-Host "Done" -ForegroundColor Green;
 }
 
-function Get-RandomCharacters{
-    param (
-        [int] $length, 
-        [array] $characters
-    )
-    $random = 1..$length | ForEach-Object { Get-Random -Maximum $characters.length }
-    $private:ofs=""
-    return [String]$characters[$random]
-}
- 
-function Get-ScrambledString{
-    param (
-        [string]$inputString
-    )     
-    $characterArray = $inputString.ToCharArray()   
-    $scrambledStringArray = $characterArray | Get-Random -Count $characterArray.Length     
-    $outputString = -join $scrambledStringArray
-    return $outputString 
-}
-
-function New-Password{
-    param(
-        [int] $lengthMin = 10,
-        [int] $lengthMax = 15,
-        [int] $upperMin = 1,
-        [int] $upperMax = 3,
-        [int] $digitMin = 1,
-        [int] $digitMax = 3,
-        [int] $symbolMin = 1,
-        [int] $symbolMax = 3
-    )
-
-
-    $passwordLength = Get-Random -Minimum $lengthMin -Maximum $lengthMax;
-    $numUpperCase = Get-Random -Minimum $upperMin -Maximum $upperMax;
-    $numDigits = Get-Random -Minimum $digitMin -Maximum $digitMax;
-    $numSymbols = Get-Random -Minimum $symbolMin -Maximum $symbolMax;
-    $numLowerCase = $passwordLength - $numUpperCase - $numDigits - $numSymbols;
-
-    $password = Get-RandomCharacters -length $numLowerCase -characters 'abcdefghiklmnoprstuvwxyz';
-    $password += Get-RandomCharacters -length $numUpperCase -characters 'ABCDEFGHKLMNOPRSTUVWXYZ';
-    $password += Get-RandomCharacters -length $numDigits -characters '1234567890';
-    $password += Get-RandomCharacters -length $num -characters '!$%&/()=?}][{@#*+';
-
-    return Get-ScrambledString $password;
-}
 
 clear;
-Get-Logging -basePath $BasePath -logPath $LogPath -logFilename $LogFilename | Out-Null
+Get-Logging -BasePath $BasePath -LogPath $LogPath -LogFilename $LogFilename | Out-Null
 Get-ConnectionToAzure -basePath $BasePath -credentialPath $credentialPath -credentialFilename $credentialFileName;
 #Disable-User -usernameToDelete $userToDelete
 Reset-UserPasswords -usernames $usersToReset -keyVaultName $KeyVaultName -resourceGroupName $keyVaultRG -location $keyVaultRegion -passwordFieldNamePrefix $passwordSecretPrefix
