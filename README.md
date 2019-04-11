@@ -1,11 +1,11 @@
 # Simple Modules to help with some Azure operations
-
+  
+    
+---   
 ## Simple Logging  
 *SimpleLogging.psm1*  
 Simple log handler for powershell scripts - This script implements a simple logging tool for powershell.  
-  
-    
----    
+   
 #### Exposed Methods
 **Start-Logging**  
 Initiliazes the logging options and sets the path where to write the logs to, creating the folder structure if this doesn't exist. If left empty, the current path is used.  
