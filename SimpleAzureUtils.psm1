@@ -71,7 +71,7 @@ function Get-ConnectionToAzure{
 function Get-KeyVault{
     <#
         .SYNOPSIS
-            Gets an Azure Resource Group.
+            Gets an Azure Key Vault.
         .DESCRIPTION
             Returns an existing Azure Key Vault or attempts to create one if non-existent.
         .PARAMETER Name

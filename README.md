@@ -26,5 +26,26 @@ Returns a new password that complies with the specified parameters.
 #### Exposed Variables   
 **SimpleSymbolSet**  
 The set of symbols to be used when generation a password
+  
+  
+---
+## Simple azure Utils
+*SimpleAzureUtils.psm1*  
+Simple azure connection tool for powershell scripts
 
-
+#### Exposed Methods
+**Get-ConnectionToAzure**  
+Connects to Azure. If the User File Path and User File Name are specified, it tries to retrieve the credentials from there. If the file doesn't exist, it will be created. If either of these parameters is absent or if the file doesn't exist, the user will be prompted for credentials.  
+  
+**Get-KeyVault**  
+Returns an existing Azure Key Vault or attempts to create one if non-existent.  
+  
+**Get-ResourceGroup**  
+Returns an existing Azure Resource Group or attempts to create one if non-existent.  
+  
+**Get-RestClientAdminToken**  
+Gets a token to use when requesting tokens to manage Azure Resources.  
+  
+**Get-RestClientResourceToken**  
+Gets a token to use when managing an Azure resource.  
+  
