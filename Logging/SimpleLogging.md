@@ -12,13 +12,13 @@ Initializes the logging options and sets the path where to write the logs to, cr
 Start-Logging -LogFullPath] <String> [[-AppendDate] <Boolean>] [[-IncludeTimeInLog] <Boolean>] [[-Level] {Trace | Debug | Information | Warning | Error | Critical | None}] [<CommonParameters>]
 ```
   
-**Parameters**
-|Name | Type | Description |
-|:------------|:-------|:---------------------------------------------------|
+**Parameters**  
+| Name | Type | Description |
+| :--- | :--- | :--- |
 | **LogFullPath** | *string* | The full path (including filename) of the log file |
 | AppendDate | *boolean* | Whether or not to include the date on the filename. The default value is true |
 | IncludeTimeInLog | *boolean* | Whether or not to include the timestamp on the beggining of each line. The default value is true |
-| Level | *LogLevel* | The minimum level a message should have to be written to the log file. The default level is 2 (Information) |
+| Level | *LogLevel* | The minimum level a message should have to be written to the log file. The default level is 2 (Information) |  
 Mandatory parameters are in **bold**
 
 **Example**
