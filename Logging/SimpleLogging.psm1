@@ -43,7 +43,7 @@ function Start-Logging{
             Initiliazes the logging options and sets the path where to write the logs to, creating the folder structure if this doesn't exist.
             If left empty, the current path is used.
         .PARAMETER LogFullPath
-            The full path (including filename) of the log file.
+            The full path (including filename) of the log file. 
         .PARAMETER AppendDate
             Whether or not to include the date on the filename. The default value is true.
         .PARAMETER IncludeTimeInLog
@@ -64,7 +64,7 @@ function Start-Logging{
         [LogLevel] $Level = "Information"
     )
     $private:SimpleLogParameters = New-Object -TypeName LogParameters;
-    $private:SimpleLogParameters.DefaultLogLevel = Level;
+    $private:SimpleLogParameters.DefaultLogLevel = $Level;
     $private:SimpleLogParameters.IncludeTimeInLog = $IncludeTimeInLog;
     if($private:SimpleLogParameters.DefaultLogLevel -ne 6)
     {
@@ -89,39 +89,34 @@ function Start-Logging{
 function Write-Log{
     <#
         .SYNOPSIS
-            Writes a message to the log file.
+            Writes a text to the log file.
         .DESCRIPTION
-            Writes a message to the log file, creating it if non existing.
-        .PARAMETER Message
-            The message to log.
-        .PARAMETER MessageLevel
-            The log level of the message. The default is 2, Information.
+            Writes a text to the log file, creating it if non existing.
+        .PARAMETER Text
+            The text to log.
+        .PARAMETER Level
+            The log level of the text. The default is 2, Information.
         .EXAMPLE
-            Log -File "C:\log\file.log" -Message "Something happened" -MessageLevel 4
-            Log -File "C:\log\file.log" -Message "Something happened"
-            Log -File "C:\log\file.log" -Message "Something happened" -MessageLevel 6 
+            Write-Log -Text "Something happened" -MessageLevel 4 
     #>
     param (
-        [Parameter(HelpMessage ='The message to log')]
-        [Parameter(Mandatory = $true)]
-        [Parameter(ValueFromPipeline=$true)]
-        [Parameter(Position=0)]
+        [Parameter(Mandatory = $true, HelpMessage ='The text to log')]
         [ValidateNotNullOrEmpty()]
-        [string] $Message,
-        [Parameter(HelpMessage ='The log level of the message. The default is 2, Information')]
-        [LogLevel] $MessageLevel = 2
+        [string] $Text,
+        [Parameter(HelpMessage ='The log level of the text. The default is 2, Information')]
+        [LogLevel] $Level = 2
     )
     if(-Not $private:SimpleLogParameters)
     {
         throw "SimpleLogging not initialized. See Start-Logging for more information";
     }
-    if(($private:SimpleLogParameters.$DefaultLevel -ne 6) -and ($MessageLevel -ge $private:SimpleLogParameters.$DefaultLogLevel))
+    if(($private:SimpleLogParameters.$DefaultLevel -ne 6) -and ($Level -ge $private:SimpleLogParameters.$DefaultLogLevel))
     {
         $logMessage = "";
         if($private:SimpleLogParameters.$IncludeTimeInLog){
             $logMessage = (Get-Date).ToString("HH:mm:ss - ");
         }
-        $logMessage = "$($logMessage)$($Message)";
+        $logMessage = "$($logMessage)$($Text)";
         Out-File -Append -FilePath $private:SimpleLogParameters.$CurrentLogFilePath -InputObject $logMessage;
     }
 }

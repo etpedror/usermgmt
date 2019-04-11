@@ -3,19 +3,13 @@ This set of powershell scripts is meant to automate some tasks on Azure.
 It is still a work in progress, but the main goal is to have a set of tools that make it simple to perform some normal tasks (like rotating passwords), either on the console or as part of a pipeline
   
   
+Modules:
+- [Logging](./Logging/SimpleLogging.md)
+- []()
+
+
 ---   
-## Simple Logging  
-*SimpleLogging.psm1*  
-Simple log handler for powershell scripts - This script implements a simple logging tool for powershell.  
-   
-#### Exposed Methods
-**Start-Logging**  
-Initializes the logging options and sets the path where to write the logs to, creating the folder structure if this doesn't exist. If left empty, the current path is used.  
-  
-**Write-Log**
-Writes a message to the log file, creating it if non existing.  
-  
-    
+
 ---
 ## Simple Password Utils  
 *SimplePasswordUtils.psm1*  

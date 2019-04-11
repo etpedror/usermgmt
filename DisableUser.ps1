@@ -139,8 +139,8 @@ function Disable-ADUser{
 
 
 clear;
-Get-Logging -BasePath $BasePath -LogPath $LogPath -LogFilename $LogFilename | Out-Null
-Get-ConnectiontoAzure -BasePath $BasePath -UserFilePath $credentialPath -UserFileName $credentialFileName;
+#Get-Logging -BasePath $BasePath -LogPath $LogPath -LogFilename $LogFilename | Out-Null
+#Get-ConnectiontoAzure -BasePath $BasePath -UserFilePath $credentialPath -UserFileName $credentialFileName;
 #Disable-User -usernameToDelete $userToDelete
-Reset-UserPasswords -usernames $usersToReset -keyVaultName $KeyVaultName -resourceGroupName $keyVaultRG -location $keyVaultRegion -passwordFieldNamePrefix $passwordSecretPrefix
+#Reset-UserPasswords -usernames $usersToReset -keyVaultName $KeyVaultName -resourceGroupName $keyVaultRG -location $keyVaultRegion -passwordFieldNamePrefix $passwordSecretPrefix
 
