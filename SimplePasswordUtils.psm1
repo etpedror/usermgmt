@@ -132,9 +132,8 @@ function New-Password{
 [string] $Private:SimpleLowercaseSet = 'abcdefghiklmnoprstuvwxyz';
 [string] $Private:SimpleUppercaseSet = 'ABCDEFGHKLMNOPRSTUVWXYZ';
 [string] $Private:SimpleNumericSet = '0123456789';
+
 [string] $SimpleSymbolSet = '!$%&/()=?}][{@#*+';
 
-Export-ModuleMember -Function 'Get-RandomCharacters';
-Export-ModuleMember -Function 'Get-ScrambledString';
 Export-ModuleMember -Function 'New-Password';
-Export-ModuleMember -Variable '$SimpleSymbolSet';
+Export-ModuleMember -Variable 'SimpleSymbolSet';

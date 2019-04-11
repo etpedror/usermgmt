@@ -27,47 +27,63 @@ enum LogLevel {
     None = 6
 }
 
-function Get-Logging{
+class LogParameters {
+    [string] $LogFilePath = '';
+    [LogLevel] $DefaultLogLevel = 2;
+    [boolean] $IncludeTimeInLog = $true;
+}
+
+[LogParameters] $private:SimpleLogParameters = $null;
+
+function Start-Logging{
     <#
         .SYNOPSIS
-            Gets the path where to write the logs to.
+            Initiliazes the logging options and sets the path where to write the logs to.
         .DESCRIPTION
-            Gets the path where to write the logs to, creating the folder structure if this doesn't exist.
+            Initiliazes the logging options and sets the path where to write the logs to, creating the folder structure if this doesn't exist.
             If left empty, the current path is used.
-        .PARAMETER BasePath
-            The base path where the script is running from.
-        .PARAMETER LogPath
-            The folder structure under BasePath where the logs are meant to be written to.
-        .PARAMETER LogFilename
-            The filename of the log file, without extension (this will always be "log").
-        .PARAMETER IncludeDate
-            Whether or not to include the date on the filename.
+        .PARAMETER LogFullPath
+            The full path (including filename) of the log file.
+        .PARAMETER AppendDate
+            Whether or not to include the date on the filename. The default value is true.
+        .PARAMETER IncludeTimeInLog
+            Whether or not to include the date on the filename. The default value is true.
+        .PARAMETER LogLevel
+            The default log level. the default value is Information.
         .EXAMPLE
-            Get-Logging -BasePath "C:\Code\Powershell\Azure" -LogPath "\logs" -LogFilename "\log"
+            Start-Logging -LogFullPath "C:\Code\Powershell\Azure\logs\myrecord.log"
     #>
     param (
-        [Parameter(HelpMessage ='The base path where the script is running from')]
-        [string] $BasePath = "",
-        [Parameter(HelpMessage ='The folder structure under BasePath where the logs are meant to be written to')]
-        [string] $LogPath = "\logs",
-        [Parameter(HelpMessage =' The filename of the log file, without extension')]
-        [string] $LogFilename = "\log",
-        [Parameter(HelpMessage ='Whether or not to include the date on the filename')]
-        [boolean] $IncludeDate = $true
+        [Parameter(HelpMessage ='The full path (including filename) of the log file')]
+        [string] $LogFullPath = "C:\Logs\simplelog.log",
+        [Parameter(HelpMessage ='Whether or not to append the date to the filename. The default value is true')]
+        [boolean] $AppendDate = $true,
+        [Parameter(HelpMessage ='Whether or not to prepend a timestamp to the beggining of every log message. The default value is true')]
+        [boolean] $IncludeTimeInLog = $true,
+        [Parameter(HelpMessage ='The default log level')]
+        [LogLevel] $Level = "Information"
     )
-    if(-not $BasePath){
-        $BasePath = (Get-Location).Path;
+    $private:SimpleLogParameters = New-Object -TypeName LogParameters;
+    $private:SimpleLogParameters.DefaultLogLevel = Level;
+    $private:SimpleLogParameters.IncludeTimeInLog = $IncludeTimeInLog;
+    if($private:SimpleLogParameters.DefaultLogLevel -ne 6)
+    {
+        $logPath = Split-Path $LogFullPath -Parent;
+        $logFolderExists = Test-Path $logPath -PathType Container;
+        if(-Not $logFolderExists) {
+            New-Item -ItemType Directory -Force -Path $logPath;
+        }
+        $now = "";
+        if($AppendDate){
+            $now = "_" + (Get-Date).ToString("yyyyMMdd");
+        }
+        $filename = Split-Path $LogFullPath -Leaf;
+        $parts = $filename.Split(".")
+        $logFileName = $parts[0]
+        $logFileExtension = ".$($parts[1])";
+        $CurrentLogFilePath = "$LogFilename$now$logFileExtension";
+        $private:SimpleLogParameters.LogFilePath = $CurrentLogFilePath;
     }
-    $logFolderExists = Test-Path "$($BasePath)$($LogPath)" -PathType Container;
-    if(-Not $logFolderExists) {
-        New-Item -ItemType Directory -Force -Path "$($BasePath)$($LogPath)";
-    }
-    $now = "";
-    if($IncludeDate){
-        $now = "_" + (Get-Date).ToString("yyyyMMdd");
-    }
-    $CurrentLogFilePath = "$($BasePath)$($LogPath)$($LogFilename)$($now).log";
-    return $CurrentLogFilePath;
 }
 
 function Write-Log{
@@ -81,7 +97,7 @@ function Write-Log{
         .PARAMETER MessageLevel
             The log level of the message. The default is 2, Information.
         .EXAMPLE
-            Log -File "C:\log\file.log" -Message "Something happened" -MessageLevel 4 -IncludeTime $true -DefaultLevel 2
+            Log -File "C:\log\file.log" -Message "Something happened" -MessageLevel 4
             Log -File "C:\log\file.log" -Message "Something happened"
             Log -File "C:\log\file.log" -Message "Something happened" -MessageLevel 6 
     #>
@@ -95,26 +111,20 @@ function Write-Log{
         [Parameter(HelpMessage ='The log level of the message. The default is 2, Information')]
         [LogLevel] $MessageLevel = 2
     )
-    if(($DefaultLevel -ne 6) -and ($MessageLevel -ge $DefaultLogLevel))
+    if(-Not $private:SimpleLogParameters)
     {
-        if(-Not $CurrentLogFilePath){
-            Get-Logging;
-        }
+        throw "SimpleLogging not initialized. See Start-Logging for more information";
+    }
+    if(($private:SimpleLogParameters.$DefaultLevel -ne 6) -and ($MessageLevel -ge $private:SimpleLogParameters.$DefaultLogLevel))
+    {
         $logMessage = "";
-        if($IncludeTimeInLog){
+        if($private:SimpleLogParameters.$IncludeTimeInLog){
             $logMessage = (Get-Date).ToString("HH:mm:ss - ");
         }
         $logMessage = "$($logMessage)$($Message)";
-        Out-File -Append -FilePath $CurrentLogFilePath -InputObject $logMessage;
+        Out-File -Append -FilePath $private:SimpleLogParameters.$CurrentLogFilePath -InputObject $logMessage;
     }
 }
 
-[string] $CurrentLogFilePath = '';
-[LogLevel] $DefaultLogLevel = 2;
-[boolean] $IncludeTimeInLog = $true;
-
-Export-ModuleMember -Function 'Get-Logging';
+Export-ModuleMember -Function 'Start-Logging';
 Export-ModuleMember -Function 'Write-Log';
-Export-ModuleMember -Variable '$CurrentLogFilePath';
-Export-ModuleMember -Variable '$DefaultLogLevel';
-Export-ModuleMember -Variable '$IncludeTimeInLog';
