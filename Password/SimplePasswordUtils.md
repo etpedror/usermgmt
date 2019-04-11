@@ -13,10 +13,12 @@ New-Password
 ```
 
 **Parameters**
+
 |Name | Type | Description |
 |:------------|:-------|:---------------------------------------------------|
 | **LogFullPath** | *string* | The full path (including filename) of the log file |
-| AppendDate | *boolean* | Whether or not to include the date on the filename. The default value is true |
+| AppendDate | *boolean* | Whether or not to include the date on the filename. The default value is true |  
+
 Mandatory parameters are in **bold**
 
 **Example**

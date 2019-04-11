@@ -3,25 +3,10 @@ This set of powershell scripts is meant to automate some tasks on Azure.
 It is still a work in progress, but the main goal is to have a set of tools that make it simple to perform some normal tasks (like rotating passwords), either on the console or as part of a pipeline
   
   
-Modules:
+Detailed information on the modules:
 - [Logging](./Logging/SimpleLogging.md)
-- []()
+- [Password](./Password/SimplePasswordUtils.md)
 
-
----   
-
----
-## Simple Password Utils  
-*SimplePasswordUtils.psm1*  
-Simple password generator module.  
-  
-#### Exposed Methods  
-**New-Password**    
-Returns a new password that complies with the specified parameters.  
-  
-#### Exposed Variables   
-**SimpleSymbolSet**  
-The set of symbols to be used when generation a password.
   
   
 ---
