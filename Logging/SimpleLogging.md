@@ -13,12 +13,14 @@ Start-Logging -LogFullPath] <String> [[-AppendDate] <Boolean>] [[-IncludeTimeInL
 ```
   
 **Parameters**  
+
 | Name | Type | Description |
 | :--- | :--- | :--- |
 | **LogFullPath** | *string* | The full path (including filename) of the log file |
 | AppendDate | *boolean* | Whether or not to include the date on the filename. The default value is true |
 | IncludeTimeInLog | *boolean* | Whether or not to include the timestamp on the beggining of each line. The default value is true |
 | Level | *LogLevel* | The minimum level a message should have to be written to the log file. The default level is 2 (Information) |  
+
 Mandatory parameters are in **bold**
 
 **Example**
@@ -36,10 +38,11 @@ Write-Log [-Text] <String> [[-Level] {Trace | Debug | Information | Warning | Er
 ```
   
 **Parameters**
+
 |Name | Type | Description |
-|:------------|:-------|:---------------------------------------------------|
+| :--- | :--- | :--- |
 | **Text** | *string* | The text to log |
-| Level | *boolean* | The log level of the text. The default is 2, Information |
+| Level | *boolean* | The log level of the text. The default is 2, Information |  
 
 Mandatory parameters are in **bold**
 
