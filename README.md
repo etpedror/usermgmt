@@ -1,4 +1,4 @@
-# SImple Modules to Help some Azure Operations
+# Simple Modules to help with some Azure operations
 
 ## Simple Logging  
 *SimpleLogging.psm1*
