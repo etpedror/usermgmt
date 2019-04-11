@@ -12,9 +12,9 @@
 
 <#
 .Synopsis
-Simple azure connection tool for powershell scripts
+Simple tool to reset user passwords
 .Description
-This script implements a simple Azure connection tool for powershell
+This script implements a simple tool to reset Azure user's passwords
 #>
 Import-Module '.\SimpleLogging.psm1';
 Import-Module '.\SimplePasswordUtils.psm1';

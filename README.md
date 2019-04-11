@@ -1,6 +1,8 @@
 # Simple Modules to help with some Azure operations
+This set of powershell scripts is meant to automate some tasks on Azure.  
+It is still a work in progress, but the main goal is to have a set of tools that make it simple to perform some normal tasks (like rotating passwords), either on the console or as part of a pipeline
   
-    
+  
 ---   
 ## Simple Logging  
 *SimpleLogging.psm1*  
@@ -25,13 +27,13 @@ Returns a new password that complies with the specified parameters.
   
 #### Exposed Variables   
 **SimpleSymbolSet**  
-The set of symbols to be used when generation a password
+The set of symbols to be used when generation a password.
   
   
 ---
-## Simple azure Utils
+## Simple Azure Utils
 *SimpleAzureUtils.psm1*  
-Simple azure connection tool for powershell scripts
+Simple azure connection tool for powershell scripts.
 
 #### Exposed Methods
 **Get-ConnectionToAzure**  
@@ -49,3 +51,12 @@ Gets a token to use when requesting tokens to manage Azure Resources.
 **Get-RestClientResourceToken**  
 Gets a token to use when managing an Azure resource.  
   
+  
+---
+## Simple Azure AD Utils
+*SimpleAzureADUtils.psm1*
+Simple tool to reset user passwords.
+  
+#### Exposed Methods
+**Reset-UserPasswords**  
+A function to rotate the passwords for users.
